@@ -3,7 +3,7 @@ import { homedir } from 'node:os'
 import path from 'node:path'
 import type { PixexErrorCode } from './errors'
 import type { RunJxaOptions } from './jxa-runner'
-import type { DocumentInfo, ExportOptions, LayerInfo, WebExportOptions } from './types'
+import type { DocumentInfo, ExportOptions, LayerInfo, MaskInfo, WebExportOptions } from './types'
 import { PixexError } from './errors'
 import {
 	buildExportProperties,
@@ -66,6 +66,16 @@ function contextualize(error: unknown, code: PixexErrorCode, prefix: string): Pi
 	return new PixexError(code, `${prefix}: ${String(error)}`)
 }
 
+function parseMaskInfo(value: unknown): MaskInfo {
+	const record = expectRecord(value, 'mask info')
+	return {
+		id: expectString(record.id, 'mask id'),
+		isVisible: expectBoolean(record.isVisible, 'mask isVisible'),
+		name: expectString(record.name, 'mask name'),
+		opacity: expectNumber(record.opacity, 'mask opacity'),
+	}
+}
+
 function parseLayerInfo(value: unknown): LayerInfo {
 	const record = expectRecord(value, 'layer info')
 	const rawClass = expectString(record.rawClass, 'layer rawClass')
@@ -75,6 +85,7 @@ function parseLayerInfo(value: unknown): LayerInfo {
 		index: expectNumber(record.index, 'layer index'),
 		isLocked: expectBoolean(record.isLocked, 'layer isLocked'),
 		isVisible: expectBoolean(record.isVisible, 'layer isVisible'),
+		mask: record.mask === undefined ? undefined : parseMaskInfo(record.mask),
 		name: expectString(record.name, 'layer name'),
 		opacity: expectNumber(record.opacity, 'layer opacity'),
 		rawClass,
@@ -215,7 +226,10 @@ export class PixelmatorDocument {
 	}
 
 	/**
-	 * Show or hide a layer by id (searched recursively through groups). Useful
+	 * Show or hide a layer — or enable/disable a layer mask — by id, searched
+	 * recursively through groups. Mask ids come from the `mask` field of
+	 * {@linkcode PixelmatorDocument.getLayers} entries; hiding a mask disables its
+	 * effect without deleting it, exactly like disabling it in the app. Useful
 	 * for exporting visibility permutations of a document.
 	 */
 	async setLayerVisibility(

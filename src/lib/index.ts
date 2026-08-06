@@ -17,6 +17,7 @@ export type {
 	ExportOptions,
 	LayerInfo,
 	LayerType,
+	MaskInfo,
 	WebExportFormat,
 	WebExportOptions,
 } from './types'

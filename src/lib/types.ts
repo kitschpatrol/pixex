@@ -123,12 +123,28 @@ export type DocumentInfo = {
 export type LayerType =
 	'colorAdjustments' | 'effects' | 'group' | 'image' | 'shape' | 'text' | 'unknown' | 'video'
 
+/**
+ * A layer's mask. Masks live outside the regular layer tree — they are only
+ * reachable through the layer that owns them. `isVisible` reflects whether the
+ * mask is enabled; pass the mask's `id` to
+ * `PixelmatorDocument.setLayerVisibility` to enable or disable it.
+ */
+export type MaskInfo = {
+	id: string
+	isVisible: boolean
+	name: string
+	/** Opacity from 0 to 100. */
+	opacity: number
+}
+
 type LayerInfoBase = {
 	id: string
 	/** 1-based position within the containing document or group. */
 	index: number
 	isLocked: boolean
 	isVisible: boolean
+	/** The layer's mask, or undefined when the layer has none. */
+	mask: MaskInfo | undefined
 	name: string
 	/** Opacity from 0 to 100. */
 	opacity: number

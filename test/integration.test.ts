@@ -157,6 +157,8 @@ describe.runIf(canRunIntegration)('integration', () => {
 
 		const swatch = findLayer(layers, 'Swatch')
 		expect(swatch?.type).toBe('image')
+		expect(swatch?.mask?.name).toBe('Mask')
+		expect(swatch?.mask?.isVisible).toBe(true)
 
 		const title = findLayer(layers, 'Title Text')
 		expect(title?.type).toBe('text')
@@ -165,6 +167,7 @@ describe.runIf(canRunIntegration)('integration', () => {
 		expect(hexagon?.type).toBe('shape')
 		expect(hexagon?.rawClass).toBe('polygonShapeLayer')
 		expect(hexagon?.opacity).toBe(50)
+		expect(hexagon?.mask).toBeUndefined()
 
 		const hidden = findLayer(layers, 'Hidden Rectangle')
 		expect(hidden?.isVisible).toBe(false)
@@ -240,6 +243,24 @@ describe.runIf(canRunIntegration)('integration', () => {
 		// Restore so later tests and reruns see the committed state
 		await document.setLayerVisibility(hidden.id, false)
 		await document.setLayerVisibility(nested.id, true)
+	}, 60_000)
+
+	it('should enable and disable a layer mask via its id', async () => {
+		const layers = await document.getLayers()
+		const mask = findLayer(layers, 'Swatch')?.mask
+		expect(mask).toBeDefined()
+		if (mask === undefined) {
+			return
+		}
+
+		await document.setLayerVisibility(mask.id, false)
+		const toggled = await document.getLayers()
+		expect(findLayer(toggled, 'Swatch')?.mask?.isVisible).toBe(false)
+
+		// Restore the committed state
+		await document.setLayerVisibility(mask.id, true)
+		const restored = await document.getLayers()
+		expect(findLayer(restored, 'Swatch')?.mask?.isVisible).toBe(true)
 	}, 60_000)
 
 	it('should fail with export-failed for a nonexistent output directory', async () => {

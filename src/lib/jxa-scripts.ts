@@ -103,6 +103,19 @@ export const layerTreeScript = wrapScript(`
 			opacity: layer.opacity(),
 			rawClass,
 		}
+		try {
+			const mask = layer.layerMask()
+			if (mask) {
+				info.mask = {
+					id: mask.id(),
+					isVisible: mask.visible(),
+					name: mask.name(),
+					opacity: mask.opacity(),
+				}
+			}
+		} catch (ignoredError) {
+			// Some layer classes may not support layer masks
+		}
 		if (rawClass === 'groupLayer') {
 			info.children = layer.layers().map(describeLayer)
 		}
@@ -112,8 +125,9 @@ export const layerTreeScript = wrapScript(`
 `)
 
 /**
- * Set the `visible` property of the layer with `params.layerId` (searched
- * recursively) in `params.documentId`.
+ * Set the `visible` property of the layer or layer mask with `params.layerId`
+ * (searched recursively) in `params.documentId`. Masks are not part of the
+ * regular layer tree, so each layer's mask id is checked during the search.
  */
 export const layerVisibilityScript = wrapScript(`
 	const doc = app.documents.byId(params.documentId)
@@ -121,6 +135,14 @@ export const layerVisibilityScript = wrapScript(`
 		for (const layer of layers) {
 			if (layer.id() === params.layerId) {
 				return layer
+			}
+			try {
+				const mask = layer.layerMask()
+				if (mask && mask.id() === params.layerId) {
+					return mask
+				}
+			} catch (ignoredError) {
+				// Some layer classes may not support layer masks
 			}
 			if (layer.class() === 'groupLayer') {
 				const found = findLayer(layer.layers())
@@ -133,7 +155,7 @@ export const layerVisibilityScript = wrapScript(`
 	}
 	const layer = findLayer(doc.layers())
 	if (!layer) {
-		throw new Error('No layer with id ' + params.layerId + ' in document')
+		throw new Error('No layer or mask with id ' + params.layerId + ' in document')
 	}
 	layer.visible = params.isVisible
 	return true

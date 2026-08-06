@@ -10,7 +10,7 @@
  *
  * The resulting document is 800×600 and contains, from a known seed:
  *
- * - 'Swatch' — an image layer (128×128 red square)
+ * - 'Swatch' — an image layer (128×128 red square) with a reveal-all layer mask
  * - 'Title Text' — a text layer reading 'Pixex'
  * - 'Hexagon' — a 6-sided polygon shape layer at 50% opacity
  * - 'Hidden Rectangle' — an invisible rounded rectangle shape layer
@@ -63,6 +63,9 @@ const jxaSource = `function run(argv) {
 	doc.resizeImage({ width: 128, height: 128, algorithm: 'nearest' })
 	doc.resizeCanvas({ width: 800, height: 600 })
 	doc.layers()[0].name = 'Swatch'
+	// A reveal-all (solid white) mask leaves the appearance unchanged while
+	// giving tests a mask to enumerate and toggle
+	doc.layers()[0].mask({ maskMode: 'reveal all' })
 
 	const text = app.TextLayer({ textContent: 'Pixex' })
 	doc.layers.push(text)

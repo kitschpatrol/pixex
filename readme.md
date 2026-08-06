@@ -49,8 +49,8 @@ The core is the `PixelmatorDocument` handle class — open a document once, run 
 
 - `PixelmatorDocument.open(filePath)` — open a document and get a handle
 - `document.getInfo()` — dimensions, resolution, color profile, bits per channel
-- `document.getLayers()` — the full recursive layer tree (names, types, visibility, opacity)
-- `document.setLayerVisibility(layerId, isVisible)` — show or hide layers, e.g. for export permutations
+- `document.getLayers()` — the full recursive layer tree (names, types, visibility, opacity, and each layer's mask)
+- `document.setLayerVisibility(layerId, isVisible)` — show or hide layers, or enable/disable layer masks by mask id, e.g. for export permutations
 - `document.exportTo(outputPath, options)` — export in any supported format
 - `document.exportForWeb(outputPath, options)` — web-optimized export
 - `document.close()` — release the document
