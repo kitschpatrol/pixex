@@ -1,2 +1,6 @@
 # Enforce LF line endings across platforms
 * text=auto eol=lf
+
+# Binary test fixtures
+*.pxd binary
+*.png binary

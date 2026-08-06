@@ -20,11 +20,24 @@
 
 ## Overview
 
+Pixex automates exports from [Pixelmator Pro](https://www.pixelmator.com/pro/) documents on macOS. It drives Pixelmator Pro's AppleScript dictionary via JXA (`osascript`), wrapped in strongly-typed async TypeScript functions — no manual AppleScript required.
+
+It supports every format Pixelmator Pro can export (PNG, JPEG, WebP, HEIC, TIFF, PSD, PDF, SVG, and more), the web-optimized export pipeline, and reading document and layer metadata to decide what to export.
+
 ## Getting started
 
 ### Dependencies
 
+- macOS with [Pixelmator Pro](https://www.pixelmator.com/pro/) 3.8 or later installed
+- Node.js 24+
+
+The first invocation triggers a macOS Automation permission prompt — approve it in System Settings → Privacy & Security → Automation.
+
 ### Installation
+
+```sh
+npm install pixex
+```
 
 ## Usage
 
@@ -32,7 +45,45 @@
 
 #### API
 
+The core is the `PixelmatorDocument` handle class — open a document once, run any number of operations, then close it:
+
+- `PixelmatorDocument.open(filePath)` — open a document and get a handle
+- `document.getInfo()` — dimensions, resolution, color profile, bits per channel
+- `document.getLayers()` — the full recursive layer tree (names, types, visibility, opacity)
+- `document.setLayerVisibility(layerId, isVisible)` — show or hide layers, e.g. for export permutations
+- `document.exportTo(outputPath, options)` — export in any supported format
+- `document.exportForWeb(outputPath, options)` — web-optimized export
+- `document.close()` — release the document
+
+One-shot wrappers (`exportDocument`, `exportDocumentForWeb`, `getDocumentInfo`, `getDocumentLayers`) open, act, and close in a single call.
+
+All failures throw `PixexError` with a machine-readable `code` (`'app-not-installed'`, `'automation-permission-denied'`, `'document-not-found'`, `'export-failed'`, …).
+
 #### Examples
+
+```ts
+import { exportDocument, PixelmatorDocument } from 'pixex'
+
+// One-shot export
+await exportDocument('artwork.pxd', 'artwork.jpg', { compressionFactor: 85, format: 'jpeg' })
+
+// Multiple operations on one open document
+const document = await PixelmatorDocument.open('artwork.pxd')
+try {
+  const info = await document.getInfo()
+  console.log(`${info.width}×${info.height} @ ${info.resolution} ppi`)
+
+  const layers = await document.getLayers()
+  for (const layer of layers) {
+    console.log(`${layer.name} (${layer.type}) visible: ${layer.isVisible}`)
+  }
+
+  await document.exportTo('artwork.png', { bitsPerChannel: 16, format: 'png' })
+  await document.exportForWeb('artwork-small.webp', { format: 'webp', scale: 50 })
+} finally {
+  await document.close()
+}
+```
 
 ### CLI
 
@@ -44,52 +95,23 @@ Run a pixex command.
 
 This section lists top-level commands for `pixex`.
 
-If no command is provided, `pixex do-something` is run by default.
-
 Usage:
 
 ```txt
 pixex [command]
 ```
 
-| Command             | Description                                        |
-| ------------------- | -------------------------------------------------- |
-| `do-something`      | Run the do-something command. _(Default command.)_ |
-| `do-something-else` | Run the do-something-else command.                 |
+| Command     | Description                                                                                                             |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `[default]` | Pixelmator Pro export automation. (CLI commands are coming soon — use the TypeScript API for now.) _(Default command.)_ |
+
+| Option              | Description              | Type      | Default |
+| ------------------- | ------------------------ | --------- | ------- |
+| `--verbose`         | Run with verbose logging | `boolean` | `false` |
+| `--help`<br>`-h`    | Show help                | `boolean` |         |
+| `--version`<br>`-v` | Show version number      | `boolean` |         |
 
 _See the sections below for more information on each subcommand._
-
-#### Subcommand: `pixex do-something`
-
-Run the do-something command.
-
-Usage:
-
-```txt
-pixex do-something
-```
-
-| Option              | Description              | Type      | Default |
-| ------------------- | ------------------------ | --------- | ------- |
-| `--verbose`         | Run with verbose logging | `boolean` | `false` |
-| `--help`<br>`-h`    | Show help                | `boolean` |         |
-| `--version`<br>`-v` | Show version number      | `boolean` |         |
-
-#### Subcommand: `pixex do-something-else`
-
-Run the do-something-else command.
-
-Usage:
-
-```txt
-pixex do-something-else
-```
-
-| Option              | Description              | Type      | Default |
-| ------------------- | ------------------------ | --------- | ------- |
-| `--verbose`         | Run with verbose logging | `boolean` | `false` |
-| `--help`<br>`-h`    | Show help                | `boolean` |         |
-| `--version`<br>`-v` | Show version number      | `boolean` |         |
 
 <!-- /cli-help -->
 

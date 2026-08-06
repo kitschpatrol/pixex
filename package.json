@@ -39,11 +39,10 @@
 		"dist/*"
 	],
 	"scripts": {
-		"bench": "vitest bench --run --compare test/benchmarks/baseline.json",
-		"bench:baseline": "vitest bench --run --outputJson test/benchmarks/baseline.json",
 		"build": "tsdown",
 		"clean": "shx rm -f pnpm-lock.yaml && git clean -fdX -e !.claude/",
 		"fix": "ksc fix",
+		"fixture:generate": "node scripts/generate-fixture.ts",
 		"lint": "ksc lint",
 		"release": "bumpp --commit 'Release: %s' && pnpm build && NPM_AUTH_TOKEN=$(op read 'op://Personal/npm/token') && pnpm publish",
 		"test": "vitest run"

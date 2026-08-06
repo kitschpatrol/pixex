@@ -1,19 +1,23 @@
-import { log } from './log'
-
-/**
- * Do something.
- */
-export function doSomething(): string {
-	log.info('Doing something...')
-	return 'Something happened'
-}
-
-/**
- * Do something else.
- */
-export function doSomethingElse(): string {
-	log.info('Doing something else...')
-	return 'Something else happened'
-}
-
+export type { PixexErrorCode, PixexErrorDetails } from './errors'
+export { PixexError } from './errors'
+export { bitsPerChannelFormats, compressionFactorFormats, frameRateFormats } from './formats'
+export type { RunJxaOptions } from './jxa-runner'
 export { setLogger } from './log'
+export {
+	exportDocument,
+	exportDocumentForWeb,
+	getDocumentInfo,
+	getDocumentLayers,
+} from './one-shot'
+export type { CloseDocumentOptions } from './pixelmator-document'
+export { isPixelmatorProInstalled, PixelmatorDocument } from './pixelmator-document'
+export type {
+	DocumentInfo,
+	ExportFormat,
+	ExportOptions,
+	LayerInfo,
+	LayerType,
+	WebExportFormat,
+	WebExportOptions,
+} from './types'
+export { exportFormats, webExportFormats } from './types'
