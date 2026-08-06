@@ -1,0 +1,19 @@
+publicHoistPattern:
+  - '@kitschpatrol/repo-config'
+  - '@kitschpatrol/typescript-config'
+  - 'case-police'
+  - '*cspell*'
+  - '*eslint*'
+  - '*knip*'
+  - '*mdat*'
+  - '*prettier*'
+  - '*remark*'
+  - '*stylelint*'
+allowBuilds:
+  oxc-resolver: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@kitschpatrol/*'
+  - rolldown-plugin-dts
+  - tsdown
+  - bumpp@12.2.0

@@ -1,0 +1,72 @@
+{
+	"name": "pixex",
+	"version": "0.0.0",
+	"description": "CLI tool and TypeScript library to automate exports from Pixelmator PXD files.",
+	"keywords": [
+		"cli",
+		"pixelmator",
+		"applescript",
+		"pxd",
+		"npm-package"
+	],
+	"homepage": "https://github.com/kitschpatrol/pixex",
+	"bugs": "https://github.com/kitschpatrol/pixex/issues",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kitschpatrol/pixex.git"
+	},
+	"license": "MIT",
+	"author": {
+		"name": "Eric Mika",
+		"email": "eric@ericmika.com",
+		"url": "https://ericmika.com"
+	},
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/lib/index.d.ts",
+			"import": "./dist/lib/index.js"
+		}
+	},
+	"main": "./dist/lib/index.js",
+	"module": "./dist/lib/index.js",
+	"types": "./dist/lib/index.d.ts",
+	"bin": {
+		"pixex": "dist/bin/cli.js"
+	},
+	"files": [
+		"dist/*"
+	],
+	"scripts": {
+		"bench": "vitest bench --run --compare test/benchmarks/baseline.json",
+		"bench:baseline": "vitest bench --run --outputJson test/benchmarks/baseline.json",
+		"build": "tsdown",
+		"clean": "shx rm -f pnpm-lock.yaml && git clean -fdX -e !.claude/",
+		"fix": "ksc fix",
+		"lint": "ksc lint",
+		"release": "bumpp --commit 'Release: %s' && pnpm build && NPM_AUTH_TOKEN=$(op read 'op://Personal/npm/token') && pnpm publish",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@types/node": "~24.13.3",
+		"@types/yargs": "^17.0.35",
+		"lognow": "^0.8.0",
+		"yargs": "^18.1.0"
+	},
+	"devDependencies": {
+		"@arethetypeswrong/core": "^0.18.5",
+		"@kitschpatrol/shared-config": "^8.6.0",
+		"bumpp": "^12.2.0",
+		"mdat-plugin-cli-help": "^3.1.0",
+		"publint": "^0.3.22",
+		"shx": "^0.4.0",
+		"tsdown": "^0.22.14",
+		"typescript": "~6.0.3",
+		"vitest": "^4.1.10"
+	},
+	"packageManager": "pnpm@11.18.0",
+	"engines": {
+		"node": "^24.16.0 || >=26.3.0"
+	}
+}
