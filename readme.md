@@ -49,11 +49,13 @@ The core is the `PixelmatorDocument` handle class — open a document once, run 
 
 - `PixelmatorDocument.open(filePath)` — open a document and get a handle
 - `document.getInfo()` — dimensions, resolution, color profile, bits per channel
-- `document.getLayers()` — the full recursive layer tree (names, types, visibility, opacity, and each layer's mask)
+- `document.getLayers()` — the full recursive layer tree (names, types, visibility, opacity, and each layer's masks)
 - `document.setLayerVisibility(layerId, isVisible)` — show or hide layers, or enable/disable layer masks by mask id, e.g. for export permutations
 - `document.exportTo(outputPath, options)` — export in any supported format
 - `document.exportForWeb(outputPath, options)` — web-optimized export
 - `document.close()` — release the document
+
+Note on masks: Pixelmator Pro supports multiple masks per layer, but its scripting dictionary (as of 3.8) only exposes the topmost one — so `masks` never contains more than one entry, and only the topmost mask can be toggled. The field is an array so the API is ready if a future dictionary exposes the full mask stack.
 
 One-shot wrappers (`exportDocument`, `exportDocumentForWeb`, `getDocumentInfo`, `getDocumentLayers`) open, act, and close in a single call.
 

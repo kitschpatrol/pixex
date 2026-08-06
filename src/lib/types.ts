@@ -124,38 +124,48 @@ export type LayerType =
 	'colorAdjustments' | 'effects' | 'group' | 'image' | 'shape' | 'text' | 'unknown' | 'video'
 
 /**
- * A layer's mask. Masks live outside the regular layer tree — they are only
+ * A layer mask. Masks live outside the regular layer tree — they are only
  * reachable through the layer that owns them. `isVisible` reflects whether the
  * mask is enabled; pass the mask's `id` to
  * `PixelmatorDocument.setLayerVisibility` to enable or disable it.
  */
 export type MaskInfo = {
-	id: string
-	isVisible: boolean
-	name: string
+	readonly id: string
+	readonly isVisible: boolean
+	readonly name: string
 	/** Opacity from 0 to 100. */
-	opacity: number
+	readonly opacity: number
 }
 
 type LayerInfoBase = {
-	id: string
+	readonly id: string
 	/** 1-based position within the containing document or group. */
-	index: number
-	isLocked: boolean
-	isVisible: boolean
-	/** The layer's mask, or undefined when the layer has none. */
-	mask: MaskInfo | undefined
-	name: string
+	readonly index: number
+	readonly isLocked: boolean
+	readonly isVisible: boolean
+	/**
+	 * The layer's masks, outermost first. Empty when the layer has none.
+	 *
+	 * Limitation: although Pixelmator Pro supports multiple masks per layer, its
+	 * scripting dictionary (as of 3.8) only exposes the topmost mask, so this
+	 * array never contains more than one entry. Verified empirically — buried
+	 * masks are unreachable by id, element collection, or chaining.
+	 */
+	readonly masks: readonly MaskInfo[]
+	readonly name: string
 	/** Opacity from 0 to 100. */
-	opacity: number
+	readonly opacity: number
 	/** The JXA scripting class, e.g. `'polygonShapeLayer'`. */
-	rawClass: string
+	readonly rawClass: string
 }
 
 /**
- * A node in a document's layer tree. Group layers carry their children; all
- * other layer types are leaves.
+ * A node in a document's layer tree — a read-only snapshot taken when
+ * `getLayers()` ran. Mutating it does not change the document; use
+ * `PixelmatorDocument.setLayerVisibility` (with a layer or mask `id`) to make
+ * changes in Pixelmator Pro. Group layers carry their children; all other layer
+ * types are leaves.
  */
 export type LayerInfo =
-	| (LayerInfoBase & { children: LayerInfo[]; type: 'group' })
-	| (LayerInfoBase & { type: Exclude<LayerType, 'group'> })
+	| (LayerInfoBase & { readonly children: readonly LayerInfo[]; readonly type: 'group' })
+	| (LayerInfoBase & { readonly type: Exclude<LayerType, 'group'> })

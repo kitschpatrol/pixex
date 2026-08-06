@@ -104,14 +104,18 @@ export const layerTreeScript = wrapScript(`
 			rawClass,
 		}
 		try {
+			// The dictionary only exposes the topmost mask (verified against
+			// 3.8) — buried masks of a multi-mask layer are unreachable
 			const mask = layer.layerMask()
 			if (mask) {
-				info.mask = {
-					id: mask.id(),
-					isVisible: mask.visible(),
-					name: mask.name(),
-					opacity: mask.opacity(),
-				}
+				info.masks = [
+					{
+						id: mask.id(),
+						isVisible: mask.visible(),
+						name: mask.name(),
+						opacity: mask.opacity(),
+					},
+				]
 			}
 		} catch (ignoredError) {
 			// Some layer classes may not support layer masks

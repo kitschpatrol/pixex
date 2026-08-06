@@ -85,7 +85,10 @@ function parseLayerInfo(value: unknown): LayerInfo {
 		index: expectNumber(record.index, 'layer index'),
 		isLocked: expectBoolean(record.isLocked, 'layer isLocked'),
 		isVisible: expectBoolean(record.isVisible, 'layer isVisible'),
-		mask: record.mask === undefined ? undefined : parseMaskInfo(record.mask),
+		masks:
+			record.masks === undefined
+				? []
+				: expectArray(record.masks, 'layer masks').map((mask) => parseMaskInfo(mask)),
 		name: expectString(record.name, 'layer name'),
 		opacity: expectNumber(record.opacity, 'layer opacity'),
 		rawClass,
@@ -227,10 +230,12 @@ export class PixelmatorDocument {
 
 	/**
 	 * Show or hide a layer — or enable/disable a layer mask — by id, searched
-	 * recursively through groups. Mask ids come from the `mask` field of
+	 * recursively through groups. Mask ids come from the `masks` field of
 	 * {@linkcode PixelmatorDocument.getLayers} entries; hiding a mask disables its
-	 * effect without deleting it, exactly like disabling it in the app. Useful
-	 * for exporting visibility permutations of a document.
+	 * effect without deleting it, exactly like disabling it in the app. Only a
+	 * layer's topmost mask is addressable — the scripting dictionary does not
+	 * expose buried masks of a multi-mask layer. Useful for exporting visibility
+	 * permutations of a document.
 	 */
 	async setLayerVisibility(
 		layerId: string,
