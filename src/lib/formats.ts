@@ -50,9 +50,10 @@ export const webExportFormatToJxa: Record<WebExportFormat, string> = {
 
 /**
  * Maps lowercase file extensions to export formats. Ambiguous extensions map to
- * the everyday variant — `.png` means `png`, not `hdrPng` or `animatedPng`. The
- * HDR, animated, and Motion formats are only reachable via an explicit format
- * option.
+ * the everyday variant — `.png` means `png`, not `hdrPng` or `animatedPng`.
+ * Formats whose extension is claimed by that everyday variant (`hdrPng`,
+ * `hdrJpeg`, `hdrHeic`, `animatedGif`, `animatedPng`, `motion`) are only
+ * reachable via an explicit format option.
  */
 const exportFormatByExtension: Record<string, ExportFormat> = {
 	avif: 'hdrAvif',

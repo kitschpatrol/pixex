@@ -38,6 +38,7 @@ import {
 export type CloseDocumentOptions = {
 	/** Save pending changes before closing. Defaults to false. */
 	shouldSave?: boolean
+	/** Maximum time to wait for the close to finish. Defaults to 120 000 ms. */
 	timeoutMs?: number
 }
 
@@ -117,16 +118,26 @@ export class PixelmatorDocument {
 	readonly filePath: string
 	/** Pixelmator Pro's scripting id for the open document. */
 	readonly id: string
+	/**
+	 * True when {@linkcode PixelmatorDocument.open} found the document already
+	 * open in Pixelmator Pro and reused it instead of opening it anew. Check this
+	 * before calling `close()` — closing a reused document closes the user's
+	 * window and, without `shouldSave`, discards their unsaved changes.
+	 */
+	readonly wasAlreadyOpen: boolean
 
-	private constructor(id: string, filePath: string) {
+	private constructor(id: string, filePath: string, wasAlreadyOpen: boolean) {
 		this.id = id
 		this.filePath = filePath
+		this.wasAlreadyOpen = wasAlreadyOpen
 	}
 
 	/**
 	 * Open a document in Pixelmator Pro and return a handle to it. If the file is
-	 * already open in the app, the existing document is reused — note that
-	 * `close()` will then close the user's window.
+	 * already open in the app, the existing document is reused and
+	 * {@linkcode PixelmatorDocument.wasAlreadyOpen} is set — the one-shot wrappers
+	 * and the CLI use it to leave such documents open rather than closing the
+	 * user's window.
 	 */
 	static async open(filePath: string, options: RunJxaOptions = {}): Promise<PixelmatorDocument> {
 		const resolvedPath = path.resolve(filePath)
@@ -141,7 +152,11 @@ export class PixelmatorDocument {
 		try {
 			const value = await runJxa(openDocumentScript, { filePath: absolutePath }, options)
 			const record = expectRecord(value, 'open result')
-			return new PixelmatorDocument(expectString(record.id, 'document id'), absolutePath)
+			return new PixelmatorDocument(
+				expectString(record.id, 'document id'),
+				absolutePath,
+				expectBoolean(record.wasAlreadyOpen, 'document wasAlreadyOpen'),
+			)
 		} catch (error) {
 			throw contextualize(error, 'document-open-failed', `Failed to open ${absolutePath}`)
 		}

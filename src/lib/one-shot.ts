@@ -12,17 +12,24 @@ async function withDocument<T>(
 	try {
 		return await operation(document)
 	} finally {
-		try {
-			await document.close({ shouldSave: false })
-		} catch (error) {
-			// Never mask the operation's own error with a close failure
-			log.warn(`Failed to close ${inputPath} after operation: ${String(error)}`)
+		if (document.wasAlreadyOpen) {
+			// Closing would dismiss the user's own window and discard their
+			// unsaved changes — leave documents we didn't open alone
+			log.debug(`Leaving ${inputPath} open — it was already open in Pixelmator Pro`)
+		} else {
+			try {
+				await document.close({ shouldSave: false })
+			} catch (error) {
+				// Never mask the operation's own error with a close failure
+				log.warn(`Failed to close ${inputPath} after operation: ${String(error)}`)
+			}
 		}
 	}
 }
 
 /**
- * Open a document, export it to a file, and close it again. For multiple
+ * Open a document, export it to a file, and close it again. A document that was
+ * already open in Pixelmator Pro is reused and left open. For multiple
  * operations on the same document, use {@linkcode PixelmatorDocument} directly
  * to avoid reopening the file for every call.
  */
@@ -35,7 +42,8 @@ export async function exportDocument(
 }
 
 /**
- * Open a document, export it optimized for the web, and close it again.
+ * Open a document, export it optimized for the web, and close it again. A
+ * document that was already open in Pixelmator Pro is reused and left open.
  */
 export async function exportDocumentForWeb(
 	inputPath: string,
@@ -48,7 +56,8 @@ export async function exportDocumentForWeb(
 }
 
 /**
- * Open a document, read its properties, and close it again.
+ * Open a document, read its properties, and close it again. A document that was
+ * already open in Pixelmator Pro is reused and left open.
  */
 export async function getDocumentInfo(
 	inputPath: string,
@@ -58,7 +67,8 @@ export async function getDocumentInfo(
 }
 
 /**
- * Open a document, read its full layer tree, and close it again.
+ * Open a document, read its full layer tree, and close it again. A document
+ * that was already open in Pixelmator Pro is reused and left open.
  */
 export async function getDocumentLayers(
 	inputPath: string,

@@ -31,12 +31,15 @@ function wrapScript(body: string): string {
 }
 
 /**
- * Open a document from `params.filePath` and return its id and name.
+ * Open a document from `params.filePath` and return its id, name, and whether
+ * it was already open in the app (`wasAlreadyOpen` lets callers leave reused
+ * documents open instead of closing the user's window).
  *
- * JXA's open() is known to return null when the document is already open in the
- * app (and occasionally due to timing), so this falls back to locating the
- * document by its file path, retrying briefly. `params.filePath` must be a
- * resolved real path — macOS reports files under /tmp as /private/tmp.
+ * The document is looked up by path first, because JXA's open() is known to
+ * return null when the document is already open (and occasionally due to
+ * timing) — the post-open retry loop covers the timing case. `params.filePath`
+ * must be a resolved real path — macOS reports files under /tmp as
+ * /private/tmp.
  */
 export const openDocumentScript = wrapScript(`
 	const findByPath = () =>
@@ -48,7 +51,11 @@ export const openDocumentScript = wrapScript(`
 				return false
 			}
 		})
-	let doc = app.open(Path(params.filePath))
+	let doc = findByPath()
+	const wasAlreadyOpen = Boolean(doc)
+	if (!doc) {
+		doc = app.open(Path(params.filePath))
+	}
 	for (let attempt = 0; attempt < 50 && !doc; attempt++) {
 		doc = findByPath()
 		if (!doc) {
@@ -58,7 +65,7 @@ export const openDocumentScript = wrapScript(`
 	if (!doc) {
 		throw new Error('Pixelmator Pro did not open ' + params.filePath)
 	}
-	return { id: doc.id(), name: doc.name() }
+	return { id: doc.id(), name: doc.name(), wasAlreadyOpen }
 `)
 
 /**

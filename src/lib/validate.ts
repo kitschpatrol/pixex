@@ -1,11 +1,11 @@
 import { PixexError } from './errors'
 
 /**
- * Narrow an unknown value to a plain record. Returns false for null-ish and
- * primitive values.
+ * Narrow an unknown value to a plain record. Returns false for null-ish,
+ * primitive, and array values.
  */
 export function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && Boolean(value)
+	return typeof value === 'object' && Boolean(value) && !Array.isArray(value)
 }
 
 function invalidOutput(context: string, value: unknown): PixexError {

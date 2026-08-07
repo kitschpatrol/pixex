@@ -308,6 +308,20 @@ describe.runIf(canRunIntegration)('integration', () => {
 		expect(error.code).toBe('export-failed')
 	}, 60_000)
 
+	it('should reuse an already-open document and leave it open after a one-shot', async () => {
+		// The suite's shared document is open, so a second open must reuse it
+		const second = await PixelmatorDocument.open(workingFixturePath)
+		expect(second.wasAlreadyOpen).toBe(true)
+		expect(second.id).toBe(document.id)
+
+		// One-shot wrappers must not close a document they didn't open
+		const outputPath = path.join(workingDirectory, 'reuse.png')
+		await exportDocument(workingFixturePath, outputPath, { format: 'png' })
+		expectMagicBytes(outputPath, 'png')
+		const info = await document.getInfo()
+		expect(info.id).toBe(document.id)
+	}, 120_000)
+
 	it('should fail with document-open-failed for a nonexistent input', async () => {
 		const error = await captureError(getDocumentInfo('/nonexistent/nope.pxd'))
 		expect(error.code).toBe('document-open-failed')
@@ -317,6 +331,7 @@ describe.runIf(canRunIntegration)('integration', () => {
 		const stalePath = path.join(workingDirectory, 'stale-copy.pxd')
 		cpSync(fixturePath, stalePath)
 		const staleDocument = await PixelmatorDocument.open(stalePath)
+		expect(staleDocument.wasAlreadyOpen).toBe(false)
 		await staleDocument.close()
 		const error = await captureError(staleDocument.getInfo())
 		expect(error.code).toBe('document-not-found')

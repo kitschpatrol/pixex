@@ -52,7 +52,9 @@ async function runCommand(operation: () => Promise<void>): Promise<void> {
 
 /**
  * Open a document, optionally solo the given layers, run the export, and close
- * without saving — so the document on disk is never modified.
+ * without saving — so the document on disk is never modified. A document that
+ * was already open in Pixelmator Pro is reused and left open instead of closing
+ * the user's window.
  */
 async function exportWithSolo(
 	inputPath: string,
@@ -61,16 +63,20 @@ async function exportWithSolo(
 ): Promise<void> {
 	const document = await PixelmatorDocument.open(inputPath)
 	try {
-		if (soloTargets !== undefined) {
+		if (soloTargets !== undefined && soloTargets.length > 0) {
 			await document.soloLayers(soloTargets)
 		}
 
 		await operation(document)
 	} finally {
-		try {
-			await document.close({ shouldSave: false })
-		} catch (closeError) {
-			log.warn(`Failed to close ${inputPath} after export: ${String(closeError)}`)
+		if (document.wasAlreadyOpen) {
+			log.debug(`Leaving ${inputPath} open — it was already open in Pixelmator Pro`)
+		} else {
+			try {
+				await document.close({ shouldSave: false })
+			} catch (closeError) {
+				log.warn(`Failed to close ${inputPath} after export: ${String(closeError)}`)
+			}
 		}
 	}
 }

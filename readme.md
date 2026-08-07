@@ -37,7 +37,7 @@ _This tool is so niche that I won't plaster a big warning up top, but please not
 ### Dependencies
 
 - macOS with [Pixelmator Pro](https://www.apple.com/pixelmator-pro/) ^3.8 installed
-- Node.js 24+
+- Node.js 24.16+
 
 The first invocation triggers a macOS Automation permission prompt. Approve it in System Settings → Privacy & Security → Automation.
 
@@ -67,6 +67,8 @@ The core is the `PixelmatorDocument` handle class. Open a document once, run any
 Note on masks: Pixelmator Pro supports multiple masks per layer, but its scripting dictionary (as of 3.8) only exposes the topmost one — so `masks` never contains more than one entry, and only the topmost mask can be toggled. The field is an array so the API is ready if a future dictionary exposes the full mask stack.
 
 One-shot wrappers (`exportDocument`, `exportDocumentForWeb`, `getDocumentInfo`, `getDocumentLayers`) open, act, and close in a single call.
+
+If the target document is already open in Pixelmator Pro, pixex reuses it — and the one-shot wrappers and CLI then leave it open rather than closing your window and discarding unsaved changes. Check `document.wasAlreadyOpen` before calling `close()` yourself if you want the same courtesy.
 
 All failures throw `PixexError` with a machine-readable `code` (`'app-not-installed'`, `'automation-permission-denied'`, `'document-not-found'`, `'export-failed'`, …).
 
@@ -138,8 +140,8 @@ pixex layers artwork.pxd
 pixex export artwork.pxd artwork.png
 pixex export artwork.pxd artwork.jpg --compression-factor 85
 
-# Formats that share an extension need --format
-pixex export artwork.pxd artwork-hdr.png --format hdrPng
+# Pass --format when the extension is absent or ambiguous
+pixex export artwork.pxd thumbnail --format png
 
 # Web-optimized export at half size
 pixex export-web artwork.pxd artwork-small.webp --scale 50
@@ -152,6 +154,8 @@ pixex layers artwork.pxd --json
 ```
 
 The commands print nothing on success — pass `--verbose` for progress logging. Failures report a machine-readable error code (e.g. `document-open-failed`) on stderr and exit 1.
+
+Documents are opened, used, and closed without saving, so the file on disk is never modified. A document you already have open in Pixelmator Pro is reused and left open when the command finishes.
 
 ## Maintainers
 

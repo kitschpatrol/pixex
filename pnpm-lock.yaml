@@ -8,12 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@types/node':
-        specifier: ~24.13.3
-        version: 24.13.3
-      '@types/yargs':
-        specifier: ^17.0.35
-        version: 17.0.35
       lognow:
         specifier: ^0.8.0
         version: 0.8.0
@@ -27,6 +21,12 @@ importers:
       '@kitschpatrol/shared-config':
         specifier: ^8.6.0
         version: 8.6.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(@pnpm/logger@1100.0.0)(@types/node@24.13.3)(@types/unist@3.0.3)(@typescript-eslint/utils@8.66.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(jiti@2.7.0)(mdast-util-from-markdown@2.0.3(supports-color@10.2.2))(mdast-util-mdx@3.0.0(supports-color@10.2.2))(micromark-util-types@2.0.2)(postcss-html@1.8.1)(remark-parse@11.0.0(supports-color@10.2.2))(stylelint-order@8.1.1(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.66.0))(typescript@6.0.3)(vitest@4.1.10(@types/node@24.13.3)(vite@8.2.0(@types/node@24.13.3)(jiti@2.7.0)(yaml@2.9.0)))
+      '@types/node':
+        specifier: ~24.13.3
+        version: 24.13.3
+      '@types/yargs':
+        specifier: ^17.0.35
+        version: 17.0.35
       bumpp:
         specifier: ^12.2.0
         version: 12.2.0
