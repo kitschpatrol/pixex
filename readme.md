@@ -20,18 +20,26 @@
 
 ## Overview
 
-Pixex automates exports from [Pixelmator Pro](https://www.pixelmator.com/pro/) documents on macOS. It drives Pixelmator Pro's AppleScript dictionary via JXA (`osascript`), wrapped in strongly-typed async TypeScript functions — no manual AppleScript required.
+Pixex automates image exports from [Pixelmator Pro](https://www.apple.com/pixelmator-pro/) documents on macOS.
 
-It supports every format Pixelmator Pro can export (PNG, JPEG, WebP, HEIC, TIFF, PSD, PDF, SVG, and more), the web-optimized export pipeline, and reading document and layer metadata to decide what to export.
+It drives Pixelmator Pro's AppleScript dictionary via JXA (`osascript`), wrapped in strongly-typed TypeScript API.
+
+It supports every format Pixelmator Pro can export (PNG, JPEG, WebP, HEIC, TIFF, PSD, PDF, SVG, and more), the web-optimized export pipeline, reading document and layer metadata, and setting layer visibility before export.
+
+I use it in certain project asset pipelines where I need to export many layer permutations from a single file, and want to keep the PXD as the single point of truth.
+
+I've only tested this with the "one-time purchase" version of Pixelmator Pro, I don't have the Creator Studio version (Pixelmator 4).
+
+_This tool is so niche that I won't plaster a big warning up top, but please note that Pixex is still under development and neither its API nor its functionality should be considered stable until a 1.0 release._
 
 ## Getting started
 
 ### Dependencies
 
-- macOS with [Pixelmator Pro](https://www.pixelmator.com/pro/) 3.8 or later installed
+- macOS with [Pixelmator Pro](https://www.apple.com/pixelmator-pro/) ^3.8 installed
 - Node.js 24+
 
-The first invocation triggers a macOS Automation permission prompt — approve it in System Settings → Privacy & Security → Automation.
+The first invocation triggers a macOS Automation permission prompt. Approve it in System Settings → Privacy & Security → Automation.
 
 ### Installation
 
@@ -45,7 +53,7 @@ npm install pixex
 
 #### API
 
-The core is the `PixelmatorDocument` handle class — open a document once, run any number of operations, then close it:
+The core is the `PixelmatorDocument` handle class. Open a document once, run any number of operations, then close it:
 
 - `PixelmatorDocument.open(filePath)` — open a document and get a handle
 - `document.getInfo()` — dimensions, resolution, color profile, bits per channel
@@ -117,27 +125,9 @@ _See the sections below for more information on each subcommand._
 
 <!-- /cli-help -->
 
-#### Commands
-
-#### Examples
-
-## Background
-
-### Motivation
-
-### Implementation notes
-
-### Similar projects
-
-## The future
-
 ## Maintainers
 
-_List maintainer(s) for a repository, along with one way of contacting them (e.g. GitHub link or email)._
-
-## Acknowledgments
-
-_State anyone or anything that significantly helped with the development of your project. State public contact hyper-links if applicable._
+[kitschpatrol](https://github.com/kitschpatrol)
 
 <!-- contributing -->
 

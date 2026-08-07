@@ -1,7 +1,7 @@
 {
 	"name": "pixex",
 	"version": "0.0.0",
-	"description": "CLI tool and TypeScript library to automate exports from Pixelmator PXD files.",
+	"description": "Pixelmator Export. TypeScript library and CLI tool to automate layer composition and exports from Pixelmator Pro PXD files.",
 	"keywords": [
 		"cli",
 		"pixelmator",
@@ -67,5 +67,8 @@
 	"packageManager": "pnpm@11.18.0",
 	"engines": {
 		"node": "^24.16.0 || >=26.3.0"
-	}
+	},
+	"os": [
+		"darwin"
+	]
 }
