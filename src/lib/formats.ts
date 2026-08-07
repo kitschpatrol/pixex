@@ -49,6 +49,65 @@ export const webExportFormatToJxa: Record<WebExportFormat, string> = {
 }
 
 /**
+ * Maps lowercase file extensions to export formats. Ambiguous extensions map to
+ * the everyday variant — `.png` means `png`, not `hdrPng` or `animatedPng`. The
+ * HDR, animated, and Motion formats are only reachable via an explicit format
+ * option.
+ */
+const exportFormatByExtension: Record<string, ExportFormat> = {
+	avif: 'hdrAvif',
+	bmp: 'bmp',
+	exr: 'openExr',
+	gif: 'gif',
+	heic: 'heic',
+	jp2: 'jpeg2000',
+	jpeg: 'jpeg',
+	jpg: 'jpeg',
+	mov: 'quickTimeMovie',
+	mp4: 'mp4',
+	pdf: 'pdf',
+	png: 'png',
+	psd: 'psd',
+	pxd: 'pixelmatorPro',
+	svg: 'svg',
+	tif: 'tiff',
+	tiff: 'tiff',
+	webp: 'webp',
+}
+
+const webExportFormatByExtension: Record<string, WebExportFormat> = {
+	gif: 'gif',
+	jpeg: 'jpeg',
+	jpg: 'jpeg',
+	png: 'png',
+	svg: 'svg',
+	webp: 'webp',
+}
+
+function fileExtension(filePath: string): string {
+	const lastSegment = filePath.split('/').at(-1) ?? filePath
+	const dotIndex = lastSegment.lastIndexOf('.')
+	return dotIndex > 0 ? lastSegment.slice(dotIndex + 1).toLowerCase() : ''
+}
+
+/**
+ * Infer the export format from a file path's extension, or undefined when the
+ * extension is missing or unrecognized. Ambiguous extensions resolve to the
+ * everyday variant (`.png` → `'png'`, never `'hdrPng'` or `'animatedPng'`).
+ */
+export function exportFormatFromExtension(outputPath: string): ExportFormat | undefined {
+	return exportFormatByExtension[fileExtension(outputPath)]
+}
+
+/**
+ * Infer the web export format from a file path's extension, or undefined when
+ * the extension is missing or unrecognized.
+ */
+export function webExportFormatFromExtension(outputPath: string): undefined | WebExportFormat {
+	return webExportFormatByExtension[fileExtension(outputPath)]
+}
+
+/**
  * Formats that accept the `compressionFactor` export option.
  */
 export const compressionFactorFormats = ['heic', 'jpeg', 'jpeg2000', 'webp'] as const

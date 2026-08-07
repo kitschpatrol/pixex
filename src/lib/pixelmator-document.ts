@@ -21,6 +21,7 @@ import {
 	layerTreeScript,
 	layerVisibilityScript,
 	openDocumentScript,
+	soloLayersScript,
 } from './jxa-scripts'
 import {
 	expectArray,
@@ -243,5 +244,27 @@ export class PixelmatorDocument {
 		options: RunJxaOptions = {},
 	): Promise<void> {
 		await runJxa(layerVisibilityScript, { documentId: this.id, isVisible, layerId }, options)
+	}
+
+	/**
+	 * Show only the given layers, matched by layer name or id. A layer stays
+	 * visible if and only if it is a target, is inside a target (descendants of a
+	 * soloed group must render), or contains a target (ancestors must render);
+	 * every other layer is hidden. Masks are untouched. The whole tree is updated
+	 * in a single osascript round trip, so this is much faster than per-layer
+	 * {@linkcode PixelmatorDocument.setLayerVisibility} calls.
+	 *
+	 * Throws a {@linkcode PixexError} when a target matches nothing — in that case
+	 * no visibility is changed. Combine with
+	 * {@linkcode PixelmatorDocument.exportTo} and a non-saving
+	 * {@linkcode PixelmatorDocument.close} to export visibility permutations
+	 * without modifying the file on disk.
+	 */
+	async soloLayers(targets: readonly string[], options: RunJxaOptions = {}): Promise<void> {
+		if (targets.length === 0) {
+			throw new TypeError('soloLayers requires at least one target layer name or id')
+		}
+
+		await runJxa(soloLayersScript, { documentId: this.id, targets }, options)
 	}
 }

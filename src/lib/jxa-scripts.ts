@@ -166,6 +166,64 @@ export const layerVisibilityScript = wrapScript(`
 `)
 
 /**
+ * Solo the layers matching `params.targets` (an array of layer names or ids) in
+ * `params.documentId`: a layer stays visible if and only if it is a target, is
+ * inside a target (descendants of a soloed group must render), or contains a
+ * target (ancestors must render); every other layer is hidden. Masks are
+ * untouched. The whole tree is walked and updated in this single round trip.
+ *
+ * Visibility is computed for the entire tree before any layer is touched, so an
+ * unmatched target aborts without modifying the document.
+ */
+export const soloLayersScript = wrapScript(`
+	const doc = app.documents.byId(params.documentId)
+	const matched = []
+	const layerNames = []
+	const isTarget = (layer) => {
+		let isHit = false
+		for (const key of [layer.name(), layer.id()]) {
+			if (params.targets.includes(key)) {
+				isHit = true
+				if (!matched.includes(key)) {
+					matched.push(key)
+				}
+			}
+		}
+		return isHit
+	}
+	const plans = []
+	const walk = (layers, isInsideTarget) => {
+		let hasTarget = false
+		for (const layer of layers) {
+			layerNames.push(layer.name())
+			const isSelfTarget = isTarget(layer)
+			let hasTargetDescendant = false
+			if (layer.class() === 'groupLayer') {
+				hasTargetDescendant = walk(layer.layers(), isInsideTarget || isSelfTarget)
+			}
+			plans.push({
+				layer,
+				isVisible: isInsideTarget || isSelfTarget || hasTargetDescendant,
+			})
+			hasTarget = hasTarget || isSelfTarget || hasTargetDescendant
+		}
+		return hasTarget
+	}
+	walk(doc.layers(), false)
+	const unmatched = params.targets.filter((target) => !matched.includes(target))
+	if (unmatched.length > 0) {
+		throw new Error(
+			'No layer named ' + unmatched.join(', ') +
+			'. Layers in this document: ' + layerNames.join(', '),
+		)
+	}
+	for (const plan of plans) {
+		plan.layer.visible = plan.isVisible
+	}
+	return true
+`)
+
+/**
  * Export `params.documentId` to `params.outputPath` as `params.format` (a
  * Pixelmator Pro enumerator name), with optional `params.properties`.
  */

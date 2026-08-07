@@ -14,7 +14,7 @@
 
 <!-- short-description -->
 
-**CLI tool and TypeScript library to automate exports from Pixelmator PXD files.**
+**Pixelmator Export. TypeScript library and CLI tool to automate layer composition and exports from Pixelmator Pro PXD files.**
 
 <!-- /short-description -->
 
@@ -59,6 +59,7 @@ The core is the `PixelmatorDocument` handle class. Open a document once, run any
 - `document.getInfo()` — dimensions, resolution, color profile, bits per channel
 - `document.getLayers()` — the full recursive layer tree (names, types, visibility, opacity, and each layer's masks)
 - `document.setLayerVisibility(layerId, isVisible)` — show or hide layers, or enable/disable layer masks by mask id, e.g. for export permutations
+- `document.soloLayers(targets)` — show only the given layers (matched by name or id): targets, their ancestors, and their descendants stay visible, everything else is hidden — one call per export permutation
 - `document.exportTo(outputPath, options)` — export in any supported format
 - `document.exportForWeb(outputPath, options)` — web-optimized export
 - `document.close()` — release the document
@@ -90,6 +91,16 @@ try {
 
   await document.exportTo('artwork.png', { bitsPerChannel: 16, format: 'png' })
   await document.exportForWeb('artwork-small.webp', { format: 'webp', scale: 50 })
+
+  // Export layer permutations — visibility changes are discarded when the
+  // document is closed without saving, so the file on disk is untouched
+  for (const variant of [
+    ['Background', 'Logo'],
+    ['Background', 'Logo Alt'],
+  ]) {
+    await document.soloLayers(variant)
+    await document.exportTo(`artwork-${variant.at(-1)}.png`, { format: 'png' })
+  }
 } finally {
   await document.close()
 }
@@ -99,31 +110,48 @@ try {
 
 <!-- cli-help -->
 
-#### Command: `pixex`
-
-Run a pixex command.
-
-This section lists top-level commands for `pixex`.
-
-Usage:
-
 ```txt
-pixex [command]
+pixex <command>
+
+Commands:
+  pixex info <input>                 Print a document's properties.
+  pixex layers <input>               Print a document's layer tree, including layer ids and masks.
+  pixex export <input> <output>      Export a document. The format is inferred from the output file extension unless --format is given.
+  pixex export-web <input> <output>  Export a document optimized for the web. The format is inferred from the output file extension unless --format is given.
+
+Options:
+      --verbose  Run with verbose logging  [boolean] [default: false]
+  -h, --help     Show help  [boolean]
+  -v, --version  Show version number  [boolean]
 ```
 
-| Command     | Description                                                                                                             |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `[default]` | Pixelmator Pro export automation. (CLI commands are coming soon — use the TypeScript API for now.) _(Default command.)_ |
-
-| Option              | Description              | Type      | Default |
-| ------------------- | ------------------------ | --------- | ------- |
-| `--verbose`         | Run with verbose logging | `boolean` | `false` |
-| `--help`<br>`-h`    | Show help                | `boolean` |         |
-| `--version`<br>`-v` | Show version number      | `boolean` |         |
-
-_See the sections below for more information on each subcommand._
-
 <!-- /cli-help -->
+
+#### Examples
+
+```sh
+# Inspect a document before deciding what to export
+pixex info artwork.pxd
+pixex layers artwork.pxd
+
+# Export — the format is inferred from the output extension
+pixex export artwork.pxd artwork.png
+pixex export artwork.pxd artwork.jpg --compression-factor 85
+
+# Formats that share an extension need --format
+pixex export artwork.pxd artwork-hdr.png --format hdrPng
+
+# Web-optimized export at half size
+pixex export-web artwork.pxd artwork-small.webp --scale 50
+
+# Export only certain layers (the document on disk is not modified)
+pixex export artwork.pxd logo-only.png --layers 'Background' 'Logo'
+
+# Machine-readable output for scripting
+pixex layers artwork.pxd --json
+```
+
+The commands print nothing on success — pass `--verbose` for progress logging. Failures report a machine-readable error code (e.g. `document-open-failed`) on stderr and exit 1.
 
 ## Maintainers
 

@@ -264,6 +264,43 @@ describe.runIf(canRunIntegration)('integration', () => {
 		expect(findLayer(restored, 'Swatch')?.masks[0]?.isVisible).toBe(true)
 	}, 60_000)
 
+	it('should solo layers, keeping ancestors and descendants visible', async () => {
+		await document.soloLayers(['Shape Group'])
+		const soloed = await document.getLayers()
+		expect(findLayer(soloed, 'Shape Group')?.isVisible).toBe(true)
+		expect(findLayer(soloed, 'Grouped Shape A')?.isVisible).toBe(true)
+		expect(findLayer(soloed, 'Grouped Shape B')?.isVisible).toBe(true)
+		expect(findLayer(soloed, 'Swatch')?.isVisible).toBe(false)
+		expect(findLayer(soloed, 'Title Text')?.isVisible).toBe(false)
+		expect(findLayer(soloed, 'Hexagon')?.isVisible).toBe(false)
+		expect(findLayer(soloed, 'Hidden Rectangle')?.isVisible).toBe(false)
+
+		// Soloing a nested layer keeps its group ancestor visible but hides its sibling
+		await document.soloLayers(['Grouped Shape A'])
+		const nested = await document.getLayers()
+		expect(findLayer(nested, 'Shape Group')?.isVisible).toBe(true)
+		expect(findLayer(nested, 'Grouped Shape A')?.isVisible).toBe(true)
+		expect(findLayer(nested, 'Grouped Shape B')?.isVisible).toBe(false)
+
+		// Restore the committed state: everything visible except Hidden Rectangle
+		await document.soloLayers(['Swatch', 'Title Text', 'Hexagon', 'Shape Group'])
+		const restored = await document.getLayers()
+		expect(findLayer(restored, 'Swatch')?.isVisible).toBe(true)
+		expect(findLayer(restored, 'Hidden Rectangle')?.isVisible).toBe(false)
+	}, 120_000)
+
+	it('should reject unmatched solo targets without changing visibility', async () => {
+		const before = await document.getLayers()
+		const error = await captureError(document.soloLayers(['No Such Layer']))
+		expect(error.code).toBe('jxa-error')
+		expect(error.message).toContain('No Such Layer')
+		expect(await document.getLayers()).toEqual(before)
+	}, 60_000)
+
+	it('should reject an empty solo target list', async () => {
+		await expect(document.soloLayers([])).rejects.toThrow(TypeError)
+	})
+
 	it('should fail with export-failed for a nonexistent output directory', async () => {
 		const error = await captureError(
 			document.exportTo(path.join(workingDirectory, 'no-such-dir/out.png'), { format: 'png' }),

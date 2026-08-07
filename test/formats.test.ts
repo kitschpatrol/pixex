@@ -4,9 +4,11 @@ import {
 	buildExportProperties,
 	buildWebExportProperties,
 	compressionFactorFormats,
+	exportFormatFromExtension,
 	exportFormatToJxa,
 	frameRateFormats,
 	layerTypeFromRawClass,
+	webExportFormatFromExtension,
 	webExportFormatToJxa,
 } from '../src/lib/formats'
 import { exportFormats, webExportFormats } from '../src/lib/types'
@@ -51,6 +53,55 @@ describe('format mapping tables', () => {
 		for (const format of compressionFactorFormats) {
 			expect(frameRateFormats).not.toContain(format)
 		}
+	})
+})
+
+describe('exportFormatFromExtension', () => {
+	it('should map common extensions to their formats', () => {
+		expect(exportFormatFromExtension('out.png')).toBe('png')
+		expect(exportFormatFromExtension('out.jpg')).toBe('jpeg')
+		expect(exportFormatFromExtension('out.jpeg')).toBe('jpeg')
+		expect(exportFormatFromExtension('out.tif')).toBe('tiff')
+		expect(exportFormatFromExtension('out.tiff')).toBe('tiff')
+		expect(exportFormatFromExtension('out.jp2')).toBe('jpeg2000')
+		expect(exportFormatFromExtension('out.pxd')).toBe('pixelmatorPro')
+		expect(exportFormatFromExtension('out.exr')).toBe('openExr')
+		expect(exportFormatFromExtension('out.mov')).toBe('quickTimeMovie')
+		expect(exportFormatFromExtension('out.avif')).toBe('hdrAvif')
+	})
+
+	it('should resolve ambiguous extensions to the everyday variant', () => {
+		expect(exportFormatFromExtension('out.png')).toBe('png')
+		expect(exportFormatFromExtension('out.gif')).toBe('gif')
+		expect(exportFormatFromExtension('out.heic')).toBe('heic')
+	})
+
+	it('should ignore case and directories', () => {
+		expect(exportFormatFromExtension('out.PNG')).toBe('png')
+		expect(exportFormatFromExtension('/some/dir.jpeg/out.WebP')).toBe('webp')
+	})
+
+	it('should return undefined for unknown or missing extensions', () => {
+		expect(exportFormatFromExtension('out.xyz')).toBeUndefined()
+		expect(exportFormatFromExtension('out')).toBeUndefined()
+		expect(exportFormatFromExtension('.png')).toBeUndefined()
+		expect(exportFormatFromExtension('/some/dir.jpeg/out')).toBeUndefined()
+	})
+})
+
+describe('webExportFormatFromExtension', () => {
+	it('should map every web format extension', () => {
+		expect(webExportFormatFromExtension('out.gif')).toBe('gif')
+		expect(webExportFormatFromExtension('out.jpg')).toBe('jpeg')
+		expect(webExportFormatFromExtension('out.jpeg')).toBe('jpeg')
+		expect(webExportFormatFromExtension('out.png')).toBe('png')
+		expect(webExportFormatFromExtension('out.svg')).toBe('svg')
+		expect(webExportFormatFromExtension('out.webp')).toBe('webp')
+	})
+
+	it('should return undefined for formats web export does not support', () => {
+		expect(webExportFormatFromExtension('out.tiff')).toBeUndefined()
+		expect(webExportFormatFromExtension('out.pxd')).toBeUndefined()
 	})
 })
 

@@ -1,6 +1,12 @@
 export type { PixexErrorCode, PixexErrorDetails } from './errors'
 export { PixexError } from './errors'
-export { bitsPerChannelFormats, compressionFactorFormats, frameRateFormats } from './formats'
+export {
+	bitsPerChannelFormats,
+	compressionFactorFormats,
+	exportFormatFromExtension,
+	frameRateFormats,
+	webExportFormatFromExtension,
+} from './formats'
 export type { RunJxaOptions } from './jxa-runner'
 export { setLogger } from './log'
 export {
