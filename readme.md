@@ -61,7 +61,6 @@ The CLI tool is also available on Homebrew:
 brew install kitschpatrol/tap/pixex
 ```
 
-
 ## Usage
 
 ### Library
