@@ -75,9 +75,7 @@ export function expectBoolean(value: unknown, context: string): boolean {
  * value) from the osascript JSON protocol.
  */
 export function optionalString(value: unknown, context: string): string | undefined {
-	if (value === undefined || (typeof value === 'object' && !value)) {
-		return undefined
-	}
-
-	return expectString(value, context)
+	return value === undefined || (typeof value === 'object' && !value)
+		? undefined
+		: expectString(value, context)
 }

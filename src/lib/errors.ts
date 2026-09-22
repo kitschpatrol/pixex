@@ -79,13 +79,11 @@ export function mapJxaFailure(failure: JxaFailure): PixexError {
 		)
 	}
 
-	if (errorNumber === -2700 || lowercaseMessage.includes("application can't be found")) {
-		return new PixexError(
-			'app-not-installed',
-			'Pixelmator Pro was not found on this Mac. Install it from pixelmator.com or the App Store.',
-			details,
-		)
-	}
-
-	return new PixexError('jxa-error', `Pixelmator Pro scripting failed: ${errorMessage}`, details)
+	return errorNumber === -2700 || lowercaseMessage.includes("application can't be found")
+		? new PixexError(
+				'app-not-installed',
+				'Pixelmator Pro was not found on this Mac. Install it from pixelmator.com or the App Store.',
+				details,
+			)
+		: new PixexError('jxa-error', `Pixelmator Pro scripting failed: ${errorMessage}`, details)
 }

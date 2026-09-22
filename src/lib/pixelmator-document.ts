@@ -58,11 +58,9 @@ function contextualize(error: unknown, code: PixexErrorCode, prefix: string): Pi
 	if (error instanceof PixexError) {
 		// Only generic scripting failures get recoded; specific codes like
 		// automation-permission-denied or document-not-found pass through.
-		if (error.code === 'jxa-error') {
-			return new PixexError(code, `${prefix}: ${error.message}`, error.details)
-		}
-
-		return error
+		return error.code === 'jxa-error'
+			? new PixexError(code, `${prefix}: ${error.message}`, error.details)
+			: error
 	}
 
 	return new PixexError(code, `${prefix}: ${String(error)}`)

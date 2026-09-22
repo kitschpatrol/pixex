@@ -122,11 +122,9 @@ export function buildCliExportOptions(
 		return { ...base, format, ...(bitsPerChannel !== undefined && { bitsPerChannel }) }
 	}
 
-	if (includesFormat(frameRateFormats, format)) {
-		return { ...base, format, ...(frameRate !== undefined && { frameRate }) }
-	}
-
-	return { ...base, format }
+	return includesFormat(frameRateFormats, format)
+		? { ...base, format, ...(frameRate !== undefined && { frameRate }) }
+		: { ...base, format }
 }
 
 /**

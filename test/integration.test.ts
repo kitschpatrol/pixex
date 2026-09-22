@@ -90,11 +90,13 @@ function findLayer(layers: readonly LayerInfo[], name: string): LayerInfo | unde
 			return layer
 		}
 
-		if (layer.type === 'group') {
-			const found = findLayer(layer.children, name)
-			if (found) {
-				return found
-			}
+		if (layer.type !== 'group') {
+			continue
+		}
+
+		const found = findLayer(layer.children, name)
+		if (found) {
+			return found
 		}
 	}
 
