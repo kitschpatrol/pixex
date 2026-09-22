@@ -43,9 +43,24 @@ The first invocation triggers a macOS Automation permission prompt. Approve it i
 
 ### Installation
 
+Install locally to access the CLI and API in a single project:
+
 ```sh
-npm install pixex
+pnpm install pixex
 ```
+
+Or install globally:
+
+```sh
+pnpm install --global pixex
+```
+
+The CLI tool is also available on Homebrew:
+
+```sh
+brew install kitschpatrol/tap/pixex
+```
+
 
 ## Usage
 
