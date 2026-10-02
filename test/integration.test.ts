@@ -1,4 +1,13 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs'
+import {
+	cpSync,
+	existsSync,
+	mkdtempSync,
+	readFileSync,
+	realpathSync,
+	rmSync,
+	statSync,
+	utimesSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -226,6 +235,33 @@ describe.runIf(canRunIntegration)('integration', () => {
 		await document.exportForWeb(outputPath, { format: 'png', scale: 50 })
 		expect(readPngWidth(outputPath)).toBe(400)
 	}, 60_000)
+
+	it.each(['exportTo', 'exportForWeb'] as const)(
+		'should preserve file identity and timestamps when repeating %s',
+		async (method) => {
+			const outputPath = path.join(workingDirectory, `repeat-${method}.png`)
+			await document[method](outputPath, { format: 'png' })
+			const oldDate = new Date('2000-01-01T00:00:00Z')
+			utimesSync(outputPath, oldDate, oldDate)
+			const before = statSync(outputPath, { bigint: true })
+
+			await document[method](outputPath, { format: 'png' })
+			const after = statSync(outputPath, { bigint: true })
+			expect(after.ino).toBe(before.ino)
+			expect(after.birthtimeNs).toBe(before.birthtimeNs)
+			expect(after.mtimeNs).toBe(before.mtimeNs)
+			expect(after.ctimeNs).toBe(before.ctimeNs)
+		},
+		120_000,
+	)
+
+	it('should replace an existing web export when settings change', async () => {
+		const outputPath = path.join(workingDirectory, 'rescaled.png')
+		await document.exportForWeb(outputPath, { format: 'png', scale: 100 })
+		expect(readPngWidth(outputPath)).toBe(800)
+		await document.exportForWeb(outputPath, { format: 'png', scale: 50 })
+		expect(readPngWidth(outputPath)).toBe(400)
+	}, 120_000)
 
 	it('should toggle layer visibility, including inside groups', async () => {
 		const layers = await document.getLayers()

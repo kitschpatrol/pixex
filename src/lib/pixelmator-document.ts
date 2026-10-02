@@ -5,6 +5,7 @@ import type { PixexErrorCode } from './errors'
 import type { RunJxaOptions } from './jxa-runner'
 import type { DocumentInfo, ExportOptions, LayerInfo, MaskInfo, WebExportOptions } from './types'
 import { PixexError } from './errors'
+import { exportFile } from './export-file'
 import {
 	buildExportProperties,
 	buildWebExportProperties,
@@ -173,20 +174,22 @@ export class PixelmatorDocument {
 
 	/**
 	 * Export the document optimized for the web. The output directory must
-	 * already exist.
+	 * already exist. An identical existing file is left untouched.
 	 */
 	async exportForWeb(outputPath: string, options: WebExportOptions): Promise<void> {
 		const absolutePath = path.resolve(outputPath)
 		try {
-			await runJxa(
-				exportForWebScript,
-				{
-					documentId: this.id,
-					format: webExportFormatToJxa[options.format],
-					outputPath: absolutePath,
-					properties: buildWebExportProperties(options),
-				},
-				options,
+			await exportFile(absolutePath, async (temporaryPath) =>
+				runJxa(
+					exportForWebScript,
+					{
+						documentId: this.id,
+						format: webExportFormatToJxa[options.format],
+						outputPath: temporaryPath,
+						properties: buildWebExportProperties(options),
+					},
+					options,
+				),
 			)
 		} catch (error) {
 			throw contextualize(error, 'export-failed', `Failed to export for web to ${absolutePath}`)
@@ -194,20 +197,23 @@ export class PixelmatorDocument {
 	}
 
 	/**
-	 * Export the document to a file. The output directory must already exist.
+	 * Export the document to a file. The output directory must already exist. An
+	 * identical existing file is left untouched.
 	 */
 	async exportTo(outputPath: string, options: ExportOptions): Promise<void> {
 		const absolutePath = path.resolve(outputPath)
 		try {
-			await runJxa(
-				exportDocumentScript,
-				{
-					documentId: this.id,
-					format: exportFormatToJxa[options.format],
-					outputPath: absolutePath,
-					properties: buildExportProperties(options),
-				},
-				options,
+			await exportFile(absolutePath, async (temporaryPath) =>
+				runJxa(
+					exportDocumentScript,
+					{
+						documentId: this.id,
+						format: exportFormatToJxa[options.format],
+						outputPath: temporaryPath,
+						properties: buildExportProperties(options),
+					},
+					options,
+				),
 			)
 		} catch (error) {
 			throw contextualize(error, 'export-failed', `Failed to export to ${absolutePath}`)

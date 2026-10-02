@@ -63,6 +63,8 @@ brew install kitschpatrol/tap/pixex
 
 ## Usage
 
+Exports leave an existing output file untouched when the exported contents are identical, preserving its creation and modification dates. This applies to both the library and CLI, including web exports. Pixelmator still renders each export so changes to layers or export settings are taken into account. Formats that embed changing metadata may still produce different files and be replaced.
+
 ### Library
 
 #### API
