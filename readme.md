@@ -4,11 +4,20 @@
 
 <!-- /title -->
 
-<!-- badges -->
+<!-- badges({
+  custom: {
+    "Homebrew": {
+      image:
+        "https://img.shields.io/badge/Homebrew-kitschpatrol%2Ftap%2Fpixex-FBB040?logo=homebrew&logoColor=white",
+      link: "https://github.com/kitschpatrol/homebrew-tap/blob/main/Formula/pixex.rb",
+    },
+  }
+}) -->
 
 [![NPM Package pixex](https://img.shields.io/npm/v/pixex.svg)](https://www.npmjs.com/package/pixex)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/license/mit)
 [![CI](https://github.com/kitschpatrol/pixex/actions/workflows/ci.yml/badge.svg)](https://github.com/kitschpatrol/pixex/actions/workflows/ci.yml)
+[![Homebrew](https://img.shields.io/badge/Homebrew-kitschpatrol%2Ftap%2Fpixex-FBB040?logo=homebrew&logoColor=white)](https://github.com/kitschpatrol/homebrew-tap/blob/main/Formula/pixex.rb)
 
 <!-- /badges -->
 
@@ -41,25 +50,41 @@ _This tool is so niche that I won't plaster a big warning up top, but please not
 
 The first invocation triggers a macOS Automation permission prompt. Approve it in System Settings → Privacy & Security → Automation.
 
+<!-- install -->
+
 ### Installation
 
-Install locally to access the CLI and API in a single project:
+There are several ways to install pixex depending on how you're planning to use it:
+
+#### CLI
+
+Run it once without installing:
 
 ```sh
-pnpm install pixex
+npx pixex
 ```
 
-Or install globally:
-
-```sh
-pnpm install --global pixex
-```
-
-The CLI tool is also available on Homebrew:
+Or install it globally with Homebrew:
 
 ```sh
 brew install kitschpatrol/tap/pixex
 ```
+
+Or install it globally with npm:
+
+```sh
+npm install --global pixex
+```
+
+#### Library
+
+Add it to your project to import the TypeScript API. This also puts the `pixex` CLI on your project's path:
+
+```sh
+npm install pixex
+```
+
+<!-- /install -->
 
 ## Usage
 
