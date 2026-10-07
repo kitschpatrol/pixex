@@ -4,20 +4,12 @@
 
 <!-- /title -->
 
-<!-- badges({
-  custom: {
-    "Homebrew": {
-      image:
-        "https://img.shields.io/badge/Homebrew-kitschpatrol%2Ftap%2Fpixex-FBB040?logo=homebrew&logoColor=white",
-      link: "https://github.com/kitschpatrol/homebrew-tap/blob/main/Formula/pixex.rb",
-    },
-  }
-}) -->
+<!-- badges -->
 
 [![NPM Package pixex](https://img.shields.io/npm/v/pixex.svg)](https://www.npmjs.com/package/pixex)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/license/mit)
 [![CI](https://github.com/kitschpatrol/pixex/actions/workflows/ci.yml/badge.svg)](https://github.com/kitschpatrol/pixex/actions/workflows/ci.yml)
-[![Homebrew](https://img.shields.io/badge/Homebrew-kitschpatrol%2Ftap%2Fpixex-FBB040?logo=homebrew&logoColor=white)](https://github.com/kitschpatrol/homebrew-tap/blob/main/Formula/pixex.rb)
+[![Homebrew](https://img.shields.io/badge/Homebrew-kitschpatrol%2Ftap%2Fpixex-FBB040?logo=homebrew&logoColor=white)](https://github.com/kitschpatrol/homebrew-tap/blob/HEAD/Formula/pixex.rb)
 
 <!-- /badges -->
 
@@ -45,8 +37,14 @@ _This tool is so niche that I won't plaster a big warning up top, but please not
 
 ### Dependencies
 
-- macOS with [Pixelmator Pro](https://www.apple.com/pixelmator-pro/) ^3.8 installed
-- Node.js 24.16+
+- [Pixelmator Pro](https://www.apple.com/pixelmator-pro/) ^3.8
+
+<!-- dependencies({ heading: false }) -->
+
+- [Node.js](https://nodejs.org/) 24.16.0 or newer (specifically `^24.16.0 || >=26.3.0`)
+- Supported operating systems: macOS
+
+<!-- /dependencies -->
 
 The first invocation triggers a macOS Automation permission prompt. Approve it in System Settings → Privacy & Security → Automation.
 
@@ -152,6 +150,8 @@ try {
 ### CLI
 
 <!-- cli-help -->
+
+#### Commands
 
 ```txt
 pixex <command>
