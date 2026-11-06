@@ -1,5 +1,6 @@
 import { cspellConfig } from '@kitschpatrol/cspell-config'
 
 export default cspellConfig({
-	words: ['ftyp'],
+	ignorePaths: ['**/changelog.md'],
+	words: ['chagent', 'ftyp'],
 })
